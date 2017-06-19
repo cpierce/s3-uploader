@@ -192,7 +192,7 @@ class S3Uploader
         foreach ($s3Files as $file) {
             if (!empty(str_replace($path, '', $file['Key']))) {
                 $files[] = [
-                    'name'   => str_replace($path, '', $file['key']),
+                    'name'   => str_replace($path, '', $file['Key']),
                     'object' => $file['Key'],
                     'size'   => $file['Size'],
                     'date'   => $file['LastModified']->format(\DateTime::ISO8601),
