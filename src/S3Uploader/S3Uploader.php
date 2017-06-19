@@ -161,7 +161,12 @@ class S3Uploader
             throw new \RuntimeException('Something went wrong.');
         }
 
-        return $path . '/' . $filename;
+        $data = [
+            'path'   => $path . '/',
+            'object' => $filename,
+        ];
+
+        return $data;
     }
 
     /**
