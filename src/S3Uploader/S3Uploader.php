@@ -202,25 +202,19 @@ class S3Uploader
      * Delete method.
      *
      * @param  string $file
-     * @param  string $folder
      *
      * @return boolean
      */
-    public function delete($file = null, $folder = '')
+    public function delete($file = null)
     {
         if (!$file) {
             throw new \RuntimeException('Invalid filename.');
         }
 
-        $path = $this->s3Folder;
-        if (!empty($folder)) {
-            $path .= '/' . $folder;
-        }
-
         try {
             $this->s3Handler->deleteObject([
                 'Bucket' => $this->s3Bucket,
-                'Key'    => $path . '/' . $file,
+                'Key'    => $file,
             ]);
         } catch (S3Exception $e) {
             throw new \RuntimeException('Something went wrong.');
