@@ -189,7 +189,7 @@ class S3Uploader
         ]);
 
         $files = [];
-        foreach ($s3_files as $file) {
+        foreach ($s3Files as $file) {
             if (!empty(str_replace($path, '', $file['Key']))) {
                 $files[] = [
                     'name'   => str_replace($path, '', $file['key']),
