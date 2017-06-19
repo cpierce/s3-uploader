@@ -139,18 +139,21 @@ class S3Uploader
      *
      * @return string
      */
-    public function add($file = [], $folder = '/')
+    public function add($file = [], $folder = '')
     {
         $filename = str_replace(' ', '_', $file['name']);
         $filename = preg_replace('/[^A-Za-z0-9\-_.]/', '', $filename);
         $filename = date('YmdHis') . '_' . $filename;
 
-        $path = $this->s3Folder . $folder;
+        $path = $this->s3Folder;
+        if (!empty($folder)) {
+            $path .= '/' . $folder;
+        }
 
         try {
             $this->s3Handler->putObject([
                 'Bucket'     => $this->s3Bucket,
-                'Key'        => $path . $filename,
+                'Key'        => $path . '/' . $filename,
                 'SourceFile' => $file['tmp_name'],
                 'ACL'        => $this->s3ACL,
             ]);
@@ -168,9 +171,12 @@ class S3Uploader
      *
      * @return array
      */
-    public function list($folder = '/')
+    public function list($folder = '')
     {
-        $path = $this->s3Folder . $folder;
+        $path = $this->s3Folder;
+        if (!empty($folder)) {
+            $path .= '/' . $folder;
+        }
 
         $s3Files = $this->s3Handler->getIterator('ListObjects', [
             'Bucket' => $this->s3Bucket,
@@ -200,18 +206,21 @@ class S3Uploader
      *
      * @return boolean
      */
-    public function delete($file = null, $folder = '/')
+    public function delete($file = null, $folder = '')
     {
         if (!$file) {
             throw new \RuntimeException('Invalid filename.');
         }
 
-        $path = $this->s3Folder . $folder;
+        $path = $this->s3Folder;
+        if (!empty($folder)) {
+            $path .= '/' . $folder;
+        }
 
         try {
             $this->s3Handler->deleteObject([
                 'Bucket' => $this->s3Bucket,
-                'Key'    => $path . $file,
+                'Key'    => $path . '/' . $file,
             ]);
         } catch (S3Exception $e) {
             throw new \RuntimeException('Something went wrong.');
