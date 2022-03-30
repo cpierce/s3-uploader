@@ -2,7 +2,7 @@
 /**
  * Library for uploading files to amazon S3
  *
- * @copyright Copyright (c) 2017, Chris Pierce
+ * @copyright Copyright (c) 2022, Chris Pierce
  * @author    Chris Pierce <cpierce@csdurant.com>
  *
  * @link https://www.github.com/cpierce/s3-uploader
@@ -95,7 +95,7 @@ class S3Uploader
     private function _setConfig($config = [])
     {
         if (!is_array($config)) {
-            throw new \RuntimeException('Config payload must be passed as array.');
+            throw new \RuntimeException('Config payload must be passed as an array.');
         }
 
         if (empty($config['bucket'])) {
@@ -152,10 +152,11 @@ class S3Uploader
 
         try {
             $this->s3Handler->putObject([
-                'Bucket'     => $this->s3Bucket,
-                'Key'        => $path . '/' . $filename,
-                'SourceFile' => $file['tmp_name'],
-                'ACL'        => $this->s3ACL,
+                'Bucket'      => $this->s3Bucket,
+                'Key'         => $path . '/' . $filename,
+                'SourceFile'  => $file['tmp_name'],
+                'ACL'         => $this->s3ACL,
+                'ContentType' => mime_content_type($file['tmp_name']),
             ]);
         } catch (S3Exception $e) {
             throw new \RuntimeException('Something went wrong.');
