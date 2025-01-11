@@ -44,30 +44,30 @@ class S3Uploader
     /**
      * S3 Key
      *
-     * @var string
+     * @var ?string
      */
     private $s3Key = null;
 
     /**
      * S3 Secret
      *
-     * @var string
+     * @var ?string
      */
     private $s3Secret = null;
 
     /**
      * S3 Bucket
      *
-     * @var string
+     * @var ?string
      */
     private $s3Bucket = null;
 
     /**
      * S3 Handler
      *
-     * @var object
+     * @var S3Client
      */
-    private $s3Handler = null;
+    private S3Client $s3Handler;
 
     /**
      * S3 ACL
@@ -79,9 +79,9 @@ class S3Uploader
     /**
      * Construct method.
      *
-     * @param array $config
+     * @param array<string, mixed> $config
      */
-    public function __construct($config)
+    public function __construct(array $config = [])
     {
         $this->_setConfig($config);
         $this->s3Connect();
@@ -90,9 +90,11 @@ class S3Uploader
     /**
      * Set Config method.
      *
-     * @param array $config
+     * @param array<string, mixed> $config
+     * @throws \RuntimeException
+     * @return void
      */
-    private function _setConfig($config = [])
+    private function _setConfig($config = []): void
     {
         if (!is_array($config)) {
             throw new \RuntimeException('Config payload must be passed as an array.');
@@ -134,12 +136,12 @@ class S3Uploader
     /**
      * Add method.
      *
-     * @param array  $file
+     * @param array{name: string, tmp_name: string} $file
      * @param string $folder
      *
-     * @return string
+     * @return array{path: string, object: string}
      */
-    public function add($file = [], $folder = '')
+    public function add(array $file, string $folder = ''): array
     {
         $filename = str_replace(' ', '_', $file['name']);
         $filename = preg_replace('/[^A-Za-z0-9\-_.]/', '', $filename);
@@ -173,11 +175,10 @@ class S3Uploader
     /**
      * List method.
      *
-     * @param  string $folder
-     *
-     * @return array
+     * @param string $folder
+     * @return array<mixed>
      */
-    public function list($folder = '')
+    public function list(string $folder = ''): array
     {
         $path = $this->s3Folder;
         if (!empty($folder)) {
@@ -196,7 +197,7 @@ class S3Uploader
                     'name'   => str_replace($path . '/', '', $file['Key']),
                     'object' => $file['Key'],
                     'size'   => $file['Size'],
-                    'date'   => $file['LastModified']->format(\DateTime::ISO8601),
+                    'date'   => $file['LastModified']->format(\DateTime::ATOM),
                 ];
             }
         }
@@ -211,7 +212,7 @@ class S3Uploader
      *
      * @return boolean
      */
-    public function delete($file = null)
+    public function delete($file = null): bool
     {
         if (!$file) {
             throw new \RuntimeException('Invalid filename.');
@@ -232,8 +233,9 @@ class S3Uploader
     /**
      * S3 Connect method.
      *
+     * @return void
      */
-    public function s3Connect()
+    public function s3Connect(): void
     {
         $this->s3Handler = new S3Client([
             'region'      => $this->s3Region,
